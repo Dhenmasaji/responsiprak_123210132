@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:url_launcher/url_launcher.dart'; // Import url_launcher package
 
 class DetailTeamPage extends StatefulWidget {
   final int teamId;
@@ -74,7 +75,7 @@ class _DetailTeamPageState extends State<DetailTeamPage> {
       appBar: AppBar(
         title: Text('Team Details'),
         centerTitle: true,
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: Colors.green,
       ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
@@ -89,15 +90,40 @@ class _DetailTeamPageState extends State<DetailTeamPage> {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(12.0),
-                  child: _teamDetails!['LogoClubUrl'] != null
-                      ? Image.network(
-                    _teamDetails!['LogoClubUrl'],
-                    height: 250,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Icon(Icons.error);
+                  child: GestureDetector(
+                    onTap: () {
+                      // Buka link LogoClubUrl saat gambar diklik
+                      if (_teamDetails!['LogoClubUrl'] != null) {
+                        launch(_teamDetails!['LogoClubUrl']);
+                      }
                     },
-                  )
-                      : Icon(Icons.sports, size: 100),
+                    child: Hero(
+                      tag: 'club_logo_${_teamDetails!['NameClub']}',
+                      child: Container(
+                        decoration: BoxDecoration(
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.5),
+                              spreadRadius: 5,
+                              blurRadius: 7,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(15),
+                          child: Image.network(
+                            _teamDetails!['LogoClubUrl'],
+                            height: 250,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(Icons.error);
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
                 SizedBox(height: 20),
                 Text(
@@ -132,8 +158,9 @@ class _DetailTeamPageState extends State<DetailTeamPage> {
                   style: TextStyle(fontSize: 18),
                 ),
                 SizedBox(height: 20),
-                ElevatedButton.icon(
+                FloatingActionButton.extended(
                   onPressed: _toggleFavorite,
+                  backgroundColor: _isFavorite ? Colors.red : Colors.green,
                   icon: _isFavorite ? Icon(Icons.favorite) : Icon(Icons.favorite_border),
                   label: _isFavorite ? Text('Remove from Favorites') : Text('Add to Favorites'),
                 ),

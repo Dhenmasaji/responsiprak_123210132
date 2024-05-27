@@ -47,43 +47,63 @@ class _TeamListPageState extends State<TeamListPage> {
         centerTitle: true,
         backgroundColor: Colors.green,
       ),
-      body: _teams.isEmpty
-          ? Center(child: CircularProgressIndicator())
-          : Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: ListView.builder(
-          itemCount: _teams.length,
-          itemBuilder: (context, index) {
-            final team = _teams[index];
-            final teamName = team['NameClub'] ?? '';
-            final logoUrl = team['LogoClubUrl'] ?? '';
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.white, Colors.green.shade100],
+          ),
+        ),
+        child: _teams.isEmpty
+            ? Center(child: CircularProgressIndicator())
+            : Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: ListView.builder(
+            itemCount: _teams.length,
+            itemBuilder: (context, index) {
+              final team = _teams[index];
+              final teamName = team['NameClub'] ?? '';
+              final logoUrl = team['LogoClubUrl'] ?? '';
 
-            return Card(
-              child: ListTile(
-                leading: logoUrl.isNotEmpty
-                    ? Image.network(
-                  logoUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Icon(Icons.error);
+              return Card(
+                elevation: 5,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: ListTile(
+                  contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                  leading: Hero(
+                    tag: 'club_logo_$teamName',
+                    child: logoUrl.isNotEmpty
+                        ? Image.network(
+                      logoUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(Icons.error);
+                      },
+                      width: 50,
+                      height: 50,
+                    )
+                        : Icon(Icons.sports_soccer),
+                  ),
+                  title: Text(
+                    teamName,
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  onTap: () {
+                    // Navigate to the DetailTeamPage with leagueId and teamId
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DetailTeamPage(teamId: team['IdClub'], leagueId: widget.leagueId),
+                      ),
+                    );
                   },
-                  width: 50,
-                  height: 50,
-                )
-                    : Icon(Icons.sports_soccer),
-                title: Text(teamName),
-                onTap: () {
-                  // Navigate to the DetailTeamPage with leagueId and teamId
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => DetailTeamPage(teamId: team['IdClub'], leagueId: widget.leagueId),
-                    ),
-                  );
-                },
-              ),
-            );
-          },
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
